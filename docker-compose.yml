@@ -10,5 +10,24 @@ services:
       - ./:/var/www
     ports:
       - "9000:9000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: tennis_db
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+      
+  db:
+    image: mysql:8
+    container_name: db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: tennis_db
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3306" 
