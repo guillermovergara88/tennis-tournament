@@ -1,66 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tennis Tournament App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A basic Laravel project to manage tennis tournaments, with REST endpoints, validation, and unit tests.
 
-## About Laravel
+## Prerequisites
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- Optionally, `curl` or any other client to test the endpoints
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Getting Started
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. **Clone the repository:**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    ```
+    git clone https://github.com/your-username/tennis-tournament.git
+    cd tennis-tournament
+    ```
 
-## Learning Laravel
+2. **Copy or rename `.env.example` to `.env`:**
+   - Adjust credentials or ports if needed.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3. **Start the project with Docker:**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    ```
+    docker compose build
+    docker compose up -d
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   - This creates two containers: `app` (PHP + Laravel) and `db` (MySQL).
 
-## Laravel Sponsors
+4. **Install Composer packages and migrate the database:**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+    ```
+    docker compose exec app composer install
+    docker compose exec app php artisan migrate
+    ```
 
-### Premium Partners
+5. **Verify the application is running:**
+   - Go to http://localhost:9000 (or the port you configured).
+   - You should see the Laravel welcome page.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Main Endpoints
 
-## Contributing
+Default prefix: `http://localhost:9000/api` (adjust the port based on your `.env`).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Create a player (POST `/api/players`):**
 
-## Code of Conduct
+    ```
+    curl -X POST "http://localhost:9000/api/players" \
+         -H "Content-Type: application/json" \
+         -d '{
+           "name": "Serena",
+           "gender": "F",
+           "skill": 90,
+           "strength": 0,
+           "speed": 0,
+           "reaction_time": 95
+         }'
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+2. **List all players (GET `/api/players`):**
 
-## Security Vulnerabilities
+    ```
+    curl -X GET "http://localhost:9000/api/players"
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Create a tournament (POST `/api/tournaments`):**
+
+    ```
+    curl -X POST "http://localhost:9000/api/tournaments" \
+         -H "Content-Type: application/json" \
+         -d '{
+           "type": "F",
+           "player_ids": [1, 2, 3, 4]
+         }'
+    ```
+
+4. **Run a tournament (POST `/api/tournaments/{id}/run`):**
+
+    ```
+    curl -X POST "http://localhost:9000/api/tournaments/1/run"
+    ```
+
+5. **Get tournament details (GET `/api/tournaments/{id}`):**
+
+    ```
+    curl -X GET "http://localhost:9000/api/tournaments/1"
+    ```
+
+## Running Tests
+
+Run **Unit** and **Feature** tests:
+
+    docker compose exec app php artisan test
+
+or:
+
+    docker compose exec app ./vendor/bin/phpunit
+
+This executes all tests in the `tests/` directory:
+
+- **Unit Tests**: Validate internal logic (services, specific methods).
+- **Feature Tests**: Validate HTTP endpoints and database integration.
+
+## Common Issues and Solutions
+
+- **“Connection refused”** during migration:
+  - Wait a few seconds for MySQL to fully start, or check that `.env` credentials match `docker-compose.yaml`.
+- **422 (Unprocessable Entity)**:
+  - Your request fails validation rules (missing or invalid fields).
+- **Port already in use**:
+  - Change the exposed port in `docker-compose.yaml` if `9000` is occupied on your system.
+
+## Production Deployment
+
+- Adjust `.env` for your hosting environment.
+- Use Docker orchestration (Kubernetes, ECS, etc.) or a cloud Docker service.
+- Configure your web server (Nginx/Apache) to serve the application.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is under the [MIT License](LICENSE).
